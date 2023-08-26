@@ -6,6 +6,7 @@ all: main
 
 main: main.c
 	$(CC) $(CFLAGS) $(INCLUDE) -o $@ $^
-
+run:
+	./main
 clean:
 	rm main

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-#define SZ       32
+#define SZ       256
 #define PATH_MAX 4096
 
 typedef enum TokenType {
@@ -20,11 +20,8 @@ typedef struct token {
 
 typedef struct lexer {
 	FILE    *file_pointer;
-	char    *source;
 	char    *file_path;
-	size_t  index;
 	size_t  size;
-	size_t  cap;
 } lexer;
 
 char *get_type_name(TokenType t)
@@ -76,9 +73,6 @@ lexer *new_lexer(char *path)
 	if (lex == NULL)
 		return (NULL);
 	
-	lex->source       = malloc(SZ);
-	lex->cap          = SZ;
-	lex->index        = 0;
 	lex->file_path    = strdup(path);
 	lex->file_pointer = fopen(lex->file_path, "r");
 
@@ -92,69 +86,31 @@ lexer *new_lexer(char *path)
 	return (lex);
 }
 
-token *next(lexer *lex)
+char *next(lexer *lex)
 {
-	char byte    = lex->source[lex->index];
-	size_t it    = 0;
-	size_t cap   = SZ;
-	token *Token = malloc(sizeof(token));
-	char  *value = malloc(SZ);
+	char c;
+	short it = 0;
+	char  *value = malloc(SZ); *value = '\0';
 
-	while (isspace(byte))
+	while ( ( c = fgetc(lex->file_pointer)) != EOF )
 	{
-		lex->index++;
-		byte = lex->source[lex->index];
+		if(!isspace(c)) {
+			value[it++] = c;
+			continue;
+		}
+		if(!(*value))
+			continue;
+		break;
 	}
 
-	if (!byte)
+	if (c == EOF)
 	{
 		free(value);
-		free(Token);
 		return (NULL);
 	}
 
-	while (byte && !isspace(byte) && byte != EOF)
-	{
-		if (it >= cap)
-		{
-			value  = realloc(value, cap * 2);
-			cap   *= 2;
-		}
-
-		value[it] = byte;
-		lex->index++;
-		byte      = lex->source[lex->index];
-		it++;
-	}
-	value[it] = 0;
-	Token->value = (value);
-	Token->Type = ID;
-	return Token;
-}
-
-void read_into_lexer(lexer *lex)
-{
-	char c = 0;
-
-	while (1)
-	{
-		if (lex->index >= lex->cap)
-		{
-			lex->source = realloc(lex->source, lex->cap * 2);
-			lex->cap *= 2;
-		}
-
-		c = fgetc(lex->file_pointer);
-
-		if (c == EOF)
-			break;
-
-		lex->source[lex->index++] = c;
-	}
-
-	lex->source[lex->index++] = 0;
-	lex->size                 = lex->index;
-	lex->index                = 0;
+	value[it] = '\0';
+	return value;
 }
 
 void free_lexer(lexer *lex)
@@ -163,7 +119,6 @@ void free_lexer(lexer *lex)
 		return;
 
 	fclose(lex->file_pointer);
-	free(lex->source);
 	free(lex->file_path);
 	free(lex);
 }
@@ -171,23 +126,14 @@ void free_lexer(lexer *lex)
 int main()
 {
 	lexer *lx = new_lexer("./src.txt");
-	token *tok = NULL;
-	if (lx)
-		read_into_lexer(lx);
-	
-	tok = next(lx);
-	while (tok)
+	char *tok = NULL;
+
+	while ((tok = next(lx)))
 	{
-		putchar('\n');
-		printf("Token: %s\n", tok->value);
-		printf("Type:  %s\n", get_type_name(tok->Type));	
-		putchar('\n');
-		free(tok->value);
+		printf("Token: %s\n", tok);
 		free(tok);
-		tok = next(lx);
 	}
 
-	printf("%s\n", lx->source);
 	free_lexer(lx);
 	return (0);
 }
