@@ -2,18 +2,18 @@
 
 int main()
 {
-	lexer *lx = new_lexer("./src.txt");
-	token *tok = NULL;
+	char* tok = NULL;
 
-	while ((tok = next(lx)))
+	set_file_pointer("src.txt");
+
+	//tok = next();
+	//printf("Token: %s\n", tok);
+
+	while ((tok = next()))
 	{
-		printf("Token: %s\n", tok->value);
-		printf("Type: %s\n", get_type_name(tok->Type));
-		printf("\n");
-		free(tok->value);
+		printf("Token: %s\n", tok);
 		free(tok);
 	}
 
-	free_lexer(lx);
 	return (0);
 }

@@ -1,5 +1,11 @@
 #include "Clexer.h"
 
+static FILE *file_pointer;
+
+void set_file_pointer(char *file){
+	file_pointer = fopen(file, "r");
+}
+
 char *get_type_name(TokenType t)
 {
 	switch(t)
@@ -35,114 +41,89 @@ char *strdup(char *s)
 	return (ptr);
 }
 
-lexer *new_lexer(char *path)
-{
-	lexer *lex = malloc(sizeof(lexer));
+//lexer *new_lexer(char *path)
+//{
+//	lexer *lex = malloc(sizeof(lexer));
+//
+//	if (path == NULL)
+//	{
+//		free(lex);
+//		fprintf(stderr, "Could not open the file! because u provided null path..\n");
+//		return (NULL);
+//	}
+//
+//	if (lex == NULL)
+//		return (NULL);
+//	
+//	lex->file_path    = strdup(path);
+//	lex->file_pointer = fopen(lex->file_path, "r");
+//
+//	if (lex->file_pointer == NULL)
+//	{
+//		fprintf(stderr, "Could not read the file..\n");
+//		free(lex);
+//		return (NULL);
+//	}
+//
+//	return (lex);
+//}
 
-	if (path == NULL)
-	{
-		free(lex);
-		fprintf(stderr, "Could not open the file! because u provided null path..\n");
-		return (NULL);
-	}
-
-	if (lex == NULL)
-		return (NULL);
-	
-	lex->file_path    = strdup(path);
-	lex->file_pointer = fopen(lex->file_path, "r");
-
-	if (lex->file_pointer == NULL)
-	{
-		fprintf(stderr, "Could not read the file..\n");
-		free(lex);
-		return (NULL);
-	}
-
-	return (lex);
+Token *next() {
+	// allocate toke struct
+	Token *token = malloc(sizeof(Token));
+	// set value token = s_next()
+	token->value = s_next();
+	// set type = s_get_token_type()
+	token->type = s_get_token_type(token->value);
+	return token;
 }
 
+static TokenType s_get_token_type() {
+	return INT;
+}
 
-token *next(lexer *lex)
-{
+static char *s_next() {
 	char c;
 	short it = 0;
-	token *tok   = malloc(sizeof(token));
-	char  *value = malloc(CAP); *value = '\0';
+	char buf[CAP] = {0};
 
-	while ( ( c = fgetc(lex->file_pointer)) != EOF )
+	while ( ( c = fgetc(file_pointer)) != EOF )
 	{
-		if(!isspace(c)) {
-
-			if (isalpha(c))
-			{
-				value[it++] = c;
-				tok->Type = ID;
-				while ((c = fgetc(lex->file_pointer)) != EOF && isalnum(c))
-				{
-					value[it++] = c;
-				}
-
+		if (ispunct(c)) {
+			if (it > 0) {
+				ungetc(c, file_pointer);
 				break;
 			}
+			return strdup(&c);
+		}
 
-			if (isdigit(c))
-			{
-				value[it++] = c;
-				tok->Type = INT;
-				while ((c = fgetc(lex->file_pointer)) != EOF && isdigit(c))
-				{
-					value[it++] = c;
-				}
-
-				break;
-			}
-			
-			if (ispunct(c))
-			{
-				if (c == '\"')
-				{
-					tok->Type = STR_LIT;
-					while ((c = fgetc(lex->file_pointer)) != EOF && c != '\"')
-					{
-						value[it++] = c;
-					}
-				} else {
-					tok->Type   = SYM;
-					value[it++] = c;
-				}
-
-				break;
-			}
-
+		if (isalnum(c)) {
+			buf[it++] = c;
 			continue;
 		}
 
-		if(!(*value))
+		// if not a valid token continue
+		if(!(*buf))
 			continue;
 
+		// if space exit out of the loop
 		break;
 	}
 
 	if (c == EOF)
-	{
-		free(value);
-		free(tok);
-		return (NULL);
-	}
+			return (NULL);
 
-	value[it]    = '\0';
-	tok->value = value;
-
-	return tok;
+	char *value = malloc(strlen(buf) + 1);
+	strcpy(value, buf);
+	return value;
 }
 
-void free_lexer(lexer *lex)
-{
-	if (lex == NULL)
-		return;
-
-	fclose(lex->file_pointer);
-	free(lex->file_path);
-	free(lex);
-}
+//void free_lexer(lexer *lex)
+//{
+//	if (lex == NULL)
+//		return;
+//
+//	fclose(lex->file_pointer);
+//	free(lex->file_path);
+//	free(lex);
+//}

@@ -2,3 +2,4 @@ Hello   123   ;   { }
 xyz \n
 (  )
 "something"
+int *f(int a);
