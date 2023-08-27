@@ -2,14 +2,14 @@
 
 static char *Type_as_cstr[TOKEN_TYPE_AMOUNT] = {
 	"STR_LIT",
-	"UNT_STR_LIT",
 	"INT",
 	"ID",
 	"SYM",
-	"NONE"
+	"UNKNOWN"
 };
 
-static FILE *file_pointer;
+
+static FILE   *file_pointer;
 static TokenType s_get_token_type(char *buff);
 static char *s_next();
 
@@ -20,6 +20,7 @@ Token *next() {
 	if (!(token->value = s_next()))
 	{
 		free(token);
+		fclose(file_pointer);
 		return (NULL);
 	}
 	// set type = s_get_token_type()
@@ -43,11 +44,14 @@ static TokenType s_get_token_type(char *buff) {
 				break;
 			it++;
 		}
-	
+
 		if (buff[it] == _quote)
 			return (STR_LIT);
-
-		return (UNT_STR_LIT);
+		
+		char *file_name = get_file_name();
+		fprintf(stderr, "%s: Unterminated String literal %s\n", (file_name), buff);
+		free(file_name);
+		return (UNKNOWN);
 	}
 
 	if (isdigit(buff[it])) 
@@ -56,9 +60,8 @@ static TokenType s_get_token_type(char *buff) {
 		{
 			if (!isdigit(buff[it]))
 			{
-				return (NONE);
+				return (UNKNOWN);
 			}
-
 			it++;
 		}
 
@@ -68,7 +71,7 @@ static TokenType s_get_token_type(char *buff) {
 	if (isalnum(buff[it]))
 		return (ID);
 
-	return (NONE);
+	return (UNKNOWN);
 }
 
 static char *s_next() {
@@ -78,7 +81,6 @@ static char *s_next() {
 
 	while ( ( c = fgetc(file_pointer)) != EOF )
 	{
-
 		if (is_punct(c)) {
 
 			if (it > 0) {
@@ -120,29 +122,32 @@ int is_punct(char c) {
 
 void set_file_pointer(char *file) {
 	file_pointer = fopen(file, "r");
+	if (!file_pointer)
+	{
+		perror(file);
+		exit(1);
+	}
 }
+
+
 
 char *get_type_name(TokenType t) {
 	return Type_as_cstr[t];
 }
 
-char *strdup(char *s)
+char *get_file_name()
 {
-	size_t it = 0;
-	char *ptr;
+	int     fd;
+	char    fd_path[255];
+	char    *filename = malloc(255);
+	ssize_t n;
 
-	if (s == NULL)
-		return (NULL);
+	fd = fileno(file_pointer);
+	sprintf(fd_path, "/proc/self/fd/%d", fd);
+	n = readlink(fd_path, filename, 255);
 
-	ptr = malloc(strlen(s) + 1);
+	if (n < 0)
+		return NULL;
 
-	while (*(s + it))
-	{
-		*(ptr + it) = *(s + it);
-		it++;
-	}
-
-	*(ptr + it)	 = 0;
-	return (ptr);
-}
-
+	filename[n] = '\0';
+	return filename;}

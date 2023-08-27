@@ -1,5 +1,0 @@
-Hello123  123Hello ;   { }
-xyz \n
-(  )
-"something
-int *f(int a);

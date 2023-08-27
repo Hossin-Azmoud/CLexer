@@ -17,7 +17,7 @@ int tokenize()
 {
 	Token *tok = NULL;
 
-	set_file_pointer("src.txt");
+	set_file_pointer("src");
 
 	//tok = next();
 	//printf("Token: %s\n", tok);
@@ -25,9 +25,11 @@ int tokenize()
 	while ((tok = next()))
 	{
 		printf("Token: %s\n", tok->value);
-		printf("TokenType: %s\n",get_type_name(tok->type));
+		printf("TokenType: %s\n", get_type_name(tok->type));
+		
+		free(tok->value);
 		free(tok);
 	}
-
+	
 	return (0);
 }
