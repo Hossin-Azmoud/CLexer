@@ -21,7 +21,6 @@ typedef struct token {
 typedef struct lexer {
 	FILE    *file_pointer;
 	char    *file_path;
-	size_t  size;
 } lexer;
 
 char *get_type_name(TokenType t)
@@ -86,31 +85,78 @@ lexer *new_lexer(char *path)
 	return (lex);
 }
 
-char *next(lexer *lex)
+
+token *next(lexer *lex)
 {
 	char c;
 	short it = 0;
+	token *tok   = malloc(sizeof(token));
 	char  *value = malloc(SZ); *value = '\0';
 
 	while ( ( c = fgetc(lex->file_pointer)) != EOF )
 	{
 		if(!isspace(c)) {
-			value[it++] = c;
+			if (isalpha(c))
+			{
+				value[it++] = c;
+				tok->Type = ID;
+				while ((c = fgetc(lex->file_pointer)) != EOF && isalnum(c))
+				{
+					value[it++] = c;
+				}
+
+				break;
+			}
+
+			if (isdigit(c))
+			{
+				value[it++] = c;
+				tok->Type = INT;
+				while ((c = fgetc(lex->file_pointer)) != EOF && isdigit(c))
+				{
+					value[it++] = c;
+				}
+
+				break;
+			}
+			
+			if (ispunct(c))
+			{
+				if (c == '\"')
+				{
+					tok->Type = STR_LIT;
+					while ((c = fgetc(lex->file_pointer)) != EOF && c != '\"')
+					{
+						value[it++] = c;
+					}
+				} else {
+					tok->Type   = SYM;
+					value[it++] = c;
+				}
+
+				break;
+			}
+
 			continue;
 		}
+
 		if(!(*value))
 			continue;
+
 		break;
 	}
 
 	if (c == EOF)
 	{
 		free(value);
+		free(tok);
 		return (NULL);
 	}
 
-	value[it] = '\0';
-	return value;
+	value[it]    = '\0';
+	tok->value = value;
+
+	return tok;
 }
 
 void free_lexer(lexer *lex)
@@ -126,11 +172,14 @@ void free_lexer(lexer *lex)
 int main()
 {
 	lexer *lx = new_lexer("./src.txt");
-	char *tok = NULL;
+	token *tok = NULL;
 
 	while ((tok = next(lx)))
 	{
-		printf("Token: %s\n", tok);
+		printf("Token: %s\n", tok->value);
+		printf("Type: %s\n", get_type_name(tok->Type));
+		printf("\n");
+		free(tok->value);
 		free(tok);
 	}
 
