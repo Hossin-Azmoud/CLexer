@@ -1,5 +1,5 @@
-Hello   123   ;   { }
+Hello123  123Hello ;   { }
 xyz \n
 (  )
-"something"
+"something
 int *f(int a);
