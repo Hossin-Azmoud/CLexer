@@ -8,10 +8,11 @@ static char *Type_as_cstr[TOKEN_TYPE_AMOUNT] = {
 	"UNKNOWN"
 };
 
-
 static FILE   *file_pointer;
 static TokenType s_get_token_type(char *buff);
 static char *s_next();
+
+
 
 Token *next() {
 	// allocate toke struct
@@ -27,6 +28,7 @@ Token *next() {
 	token->type = s_get_token_type(token->value);
 	return token;
 }
+
 
 static TokenType s_get_token_type(char *buff) {
 	char _quote = 0;
