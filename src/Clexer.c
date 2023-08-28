@@ -8,10 +8,15 @@ static char *Type_as_cstr[TOKEN_TYPE_AMOUNT] = {
 	"UNKNOWN"
 };
 
+static struct S_TOKEN {
+	char *value;
+	char *location;
+};
 
 static FILE   *file_pointer;
 static TokenType s_get_token_type(char *buff);
 static char *s_next();
+static void s_warning(char *error, char *token);
 
 Token *next() {
 	// allocate toke struct
@@ -29,58 +34,48 @@ Token *next() {
 }
 
 static TokenType s_get_token_type(char *buff) {
-	char _quote = 0;
-	size_t it   = 0;
+	char lbuff_char   = buff[strlen(buff) - 1];
 
-	if (is_punct(buff[it])) // SYMBOLS
+	if (is_punct(buff[0])) // SYMBOLS
 		return (SYM);
 
-	if (is_quote(buff[it]))
-	{
-		_quote = buff[it++];
-		while (buff[it] != _quote)
-		{
-			if (!buff[it])
-				break;
-			it++;
-		}
+	if (is_quote(buff[0])) {
 
-		if (buff[it] == _quote)
+		if (is_quote(lbuff_char) && buff[0] == lbuff_char)
 			return (STR_LIT);
-		
-		char *file_name = get_file_name();
-		fprintf(stderr, "%s: Unterminated String literal %s\n", (file_name), buff);
-		free(file_name);
-		return (UNKNOWN);
+		if(is_quote(lbuff_char) && buff[0] != lbuff_char)
+			s_warning("Invalid", buff);
+		else
+			s_warning("Unterminated", buff);
 	}
 
-	if (isdigit(buff[it])) 
-	{
-		while (buff[it])
-		{
-			if (!isdigit(buff[it]))
-			{
-				return (UNKNOWN);
-			}
-			it++;
-		}
-
+	// check the whole thing
+	if (isdigit(buff[0])) {
 		return (INT);
 	}
 
-	if (isalnum(buff[it]))
+	if (isalpha(buff[0]) && !(is_quote(lbuff_char))) {
 		return (ID);
+	}
 
 	return (UNKNOWN);
 }
 
+/*
+ * todo: location, src file name output "token file_name:row:colm"
+ */
 static char *s_next() {
-	char c;
+	static int row = 1, col = 1;
 	short it = 0;
 	char buf[CAP] = {0};
 
-	while ( ( c = fgetc(file_pointer)) != EOF )
+	while ( ( char c = fgetc(file_pointer)) != EOF )
 	{
+		if (c == '\n') {
+			col = 0;
+			row++;
+		}
+
 		if (is_punct(c)) {
 
 			if (it > 0) {
@@ -129,12 +124,11 @@ void set_file_pointer(char *file) {
 	}
 }
 
-
-
 char *get_type_name(TokenType t) {
 	return Type_as_cstr[t];
 }
 
+// make file name global variable.
 char *get_file_name()
 {
 	int     fd;
@@ -150,4 +144,11 @@ char *get_file_name()
 		return NULL;
 
 	filename[n] = '\0';
-	return filename;}
+	return filename;
+}
+
+static void s_warning(char *error, char *token) {
+		char *file_name = get_file_name();
+		fprintf(stderr, "%s: %s String literal %s\n", (file_name), error, token);
+		free(file_name);
+}
