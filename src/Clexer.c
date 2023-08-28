@@ -1,5 +1,6 @@
 #include "Clexer.h"
 
+
 static char *Type_as_cstr[TOKEN_TYPE_AMOUNT] = {
 	"STR_LIT",
 	"INT",
@@ -8,92 +9,91 @@ static char *Type_as_cstr[TOKEN_TYPE_AMOUNT] = {
 	"UNKNOWN"
 };
 
-static FILE   *file_pointer;
-static TokenType s_get_token_type(char *buff);
-static char *s_next();
+static void s_get_token_type(Token *token, Lexer *lex);
+static Token *s_next(Lexer *lex);
+static void s_warning(char *error, Token *token, char *file);
 
+Token *next(Lexer *lex)
+{
+	Token *token;
 
-
-Token *next() {
-	// allocate toke struct
-	Token *token = malloc(sizeof(Token));
-	// set value token = s_next()
-	if (!(token->value = s_next()))
-	{
-		free(token);
-		fclose(file_pointer);
+	if (!(token = s_next(lex)))
 		return (NULL);
-	}
-	// set type = s_get_token_type()
-	token->type = s_get_token_type(token->value);
+
+	s_get_token_type(token, lex);
 	return token;
 }
 
 
-static TokenType s_get_token_type(char *buff) {
-	char _quote = 0;
-	size_t it   = 0;
+static void s_get_token_type(Token *token, Lexer *lex)
+{
+	char first_char = *(token->value), last_char = token->value[strlen(token->value) - 1];
 
-	if (is_punct(buff[it])) // SYMBOLS
-		return (SYM);
-
-	if (is_quote(buff[it]))
-	{
-		_quote = buff[it++];
-		while (buff[it] != _quote)
-		{
-			if (!buff[it])
-				break;
-			it++;
-		}
-
-		if (buff[it] == _quote)
-			return (STR_LIT);
-		
-		char *file_name = get_file_name();
-		fprintf(stderr, "%s: Unterminated String literal %s\n", (file_name), buff);
-		free(file_name);
-		return (UNKNOWN);
+	if (is_punct(first_char)) {
+		token->type = SYM;
+		return;
 	}
 
-	if (isdigit(buff[it])) 
-	{
-		while (buff[it])
+	if (is_quote(first_char)) {
+		// TODO (#1): Handle singular quotes.
+		if (is_quote(last_char) && (first_char == last_char))
 		{
-			if (!isdigit(buff[it]))
-			{
-				return (UNKNOWN);
-			}
-			it++;
+			token->type = STR_LIT;
+			return;
 		}
 
-		return (INT);
+		if(is_quote(last_char) && first_char != last_char)
+			
+			s_warning("Invalid", token, lex->file_name);
+		else
+			s_warning("Unterminated", token, lex->file_name);
 	}
 
-	if (isalnum(buff[it]))
-		return (ID);
+	// check the whole thing
+	if (isdigit(first_char)) {
+		token->type = INT;
+		return;
+	}
 
-	return (UNKNOWN);
+	if (isalpha(first_char)) {
+		token->type = ID;
+		return;
+	}
+
+	token->type = UNKNOWN;
 }
 
-static char *s_next() {
-	char c;
+/*
+ * todo: location, src file name output "token file_name:row:colm"
+ */
+static Token *s_next(Lexer *lex)
+{
+	char c = 0;
 	short it = 0;
+	Token *token = malloc(sizeof(Token));
 	char buf[CAP] = {0};
-
-	while ( ( c = fgetc(file_pointer)) != EOF )
+	
 	{
-		if (is_punct(c)) {
+		// Copy the location.
+		token->row = lex->row;
+		token->col = lex->col;
+	}
 
+	while ( (c = fgetc(lex->file_pointer)) != EOF ) {
+		lex->col++;
+
+		if (is_punct(c)) {
 			if (it > 0) {
-				ungetc(c, file_pointer);
+				ungetc(c, lex->file_pointer);
+				lex->col--;
 				break;
 			}
-
-			return strdup(&c);
+			token->value = strdup(&c);
+			return token;
 		}
-
+		// clang -fsyntax-only -Xclang -dump-tokens
 		if (!isspace(c)) {
+			// NOTE (#1): Buufffer overflow if the size of the token is more than (255)
 			buf[it++] = c;
 			continue;
 		}
@@ -103,53 +103,67 @@ static char *s_next() {
 			continue;
 
 		// if space exit out of the loop
+		if (c == '\n') {
+			lex->row += 1;
+			lex->col  = 1;
+		}
+
 		break;
 	}
 
-	if (c == EOF)
-			return (NULL);
-
-	char *value = malloc(strlen(buf) + 1);
-	strcpy(value, buf);
-	return value;
+	if (c == EOF) {
+		free(token);
+		return NULL;
+	}
+	
+	token->value = strdup(buf);
+	return token;
 }
 
-int is_quote(char c) {
+int is_quote(char c)
+{
 	return (c == '\"') || (c == '\'');
 }
 
-int is_punct(char c) {
+int is_punct(char c)
+{
 	return (ispunct(c) && !is_quote(c));
 }
 
-void set_file_pointer(char *file) {
-	file_pointer = fopen(file, "r");
-	if (!file_pointer)
-	{
+void  open_lexer(Lexer *lex, char *file)
+{
+	lex->file_pointer = fopen(file, "r");
+
+	if (!lex->file_pointer) {
 		perror(file);
+		free(lex);
 		exit(1);
 	}
+	
+	lex->file_name = strdup(file);
+	lex->row       = 1;
+	lex->col       = 1;
 }
 
+void  close_lexer(Lexer *lex)
+{
+	fclose(lex->file_pointer);
+	free(lex->file_name);
+	free(lex);
+}
 
-
-char *get_type_name(TokenType t) {
+char *get_type_name(TokenType t)
+{
 	return Type_as_cstr[t];
 }
 
-char *get_file_name()
+static void s_warning(char *error, Token *token, char *file)
 {
-	int     fd;
-	char    fd_path[255];
-	char    *filename = malloc(255);
-	ssize_t n;
-
-	fd = fileno(file_pointer);
-	sprintf(fd_path, "/proc/self/fd/%d", fd);
-	n = readlink(fd_path, filename, 255);
-
-	if (n < 0)
-		return NULL;
-
-	filename[n] = '\0';
-	return filename;}
+	fprintf(stderr, "%s:%ld:%ld %s String literal %s\n",
+		 file, 
+		 token->row, 
+		 token->col, 
+		 error, 
+		 token->value
+	);
+}

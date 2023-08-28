@@ -1,9 +1,6 @@
 #ifndef CLEXER_H
 #define CLEXER_H
-
 #define _GNU_SOURCE
-#define CAP      1024
-#define PATH_MAX 4096
 
 #include <stdio.h>
 #include <errno.h>
@@ -13,6 +10,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#define CAP      1024
+#define PATH_MAX 4096
 
 typedef enum TokenType {
 	STR_LIT,
@@ -26,19 +25,20 @@ typedef enum TokenType {
 typedef struct token {
 	TokenType type;
 	char      *value;
-	size_t    row, col;
+	char      *location;
 } Token;
 
-typedef struct lexer {
-	FILE   *file_pointer;
-	char   *file_name;
-	size_t col, row;
-} Lexer;
+typedef struct location {
+	size_t row;
+	size_t col;
+} location;
 
+char  *get_file_name();
 char  *get_type_name(TokenType t);
-Token *next(Lexer *lex);
+void  set_file_pointer(char *file);
+Token *next();
 int   is_punct(char c);
 int   is_quote(char c);
-void  open_lexer(Lexer *lex, char *file);
-void  close_lexer(Lexer *lex);
-#endif // CLEXER_H
+
+#endif //CLEXER_H
+
