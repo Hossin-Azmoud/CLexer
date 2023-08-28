@@ -9,6 +9,7 @@ static char *Type_as_cstr[TOKEN_TYPE_AMOUNT] = {
 	"UNKNOWN"
 };
 
+static void skip_spaces(Lexer *lex);
 static void s_get_token_type(Token *token, Lexer *lex);
 static Token *s_next(Lexer *lex);
 static void s_warning(char *error, Token *token, char *file);
@@ -72,7 +73,9 @@ static Token *s_next(Lexer *lex)
 	short it = 0;
 	Token *token = malloc(sizeof(Token));
 	char buf[CAP] = {0};
-	
+	// NOTE (#1): Function that skips all the spaces and sets the 
+	skip_spaces(lex);
+
 	{
 		// Copy the location.
 		token->row = lex->row;
@@ -91,6 +94,7 @@ static Token *s_next(Lexer *lex)
 			token->value = strdup(&c);
 			return token;
 		}
+
 		// clang -fsyntax-only -Xclang -dump-tokens
 		if (!isspace(c)) {
 			// NOTE (#1): Buufffer overflow if the size of the token is more than (255)
@@ -107,7 +111,7 @@ static Token *s_next(Lexer *lex)
 			lex->row += 1;
 			lex->col  = 1;
 		}
-
+		
 		break;
 	}
 
@@ -166,4 +170,23 @@ static void s_warning(char *error, Token *token, char *file)
 		 error, 
 		 token->value
 	);
+}
+
+static void skip_spaces(Lexer *lex)
+{
+	char c = 0;
+
+	while (isspace((c = fgetc(lex->file_pointer)))) {
+		switch (c) {
+			case '\n': {
+				lex->col =  1;
+				lex->row += 1;
+			} break;
+			default: {
+				lex->col++;
+			} break;
+		}
+	}
+
+	ungetc(c, lex->file_pointer);
 }
