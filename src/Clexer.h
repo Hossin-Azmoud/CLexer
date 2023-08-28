@@ -37,8 +37,7 @@ typedef struct lexer {
 
 char  *get_type_name(TokenType t);
 Token *next(Lexer *lex);
-int   is_punct(char c);
-int   is_quote(char c);
 void  open_lexer(Lexer *lex, char *file);
 void  close_lexer(Lexer *lex);
+
 #endif // CLEXER_H

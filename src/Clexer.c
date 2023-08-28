@@ -13,18 +13,19 @@ static void skip_spaces(Lexer *lex);
 static void s_get_token_type(Token *token, Lexer *lex);
 static Token *s_next(Lexer *lex);
 static void s_warning(char *error, Token *token, char *file);
+static inline int is_punct(char c);
+static inline int is_quote(char c);
 
 Token *next(Lexer *lex)
 {
 	Token *token;
 
 	if (!(token = s_next(lex)))
-		return (NULL);
+		return NULL;
 
 	s_get_token_type(token, lex);
 	return token;
 }
-
 
 static void s_get_token_type(Token *token, Lexer *lex)
 {
@@ -37,14 +38,12 @@ static void s_get_token_type(Token *token, Lexer *lex)
 
 	if (is_quote(first_char)) {
 		// TODO (#1): Handle singular quotes.
-		if (is_quote(last_char) && (first_char == last_char))
-		{
+		if (is_quote(last_char) && (first_char == last_char)) {
 			token->type = STR_LIT;
 			return;
 		}
 
 		if(is_quote(last_char) && first_char != last_char)
-			
 			s_warning("Invalid", token, lex->file_name);
 		else
 			s_warning("Unterminated", token, lex->file_name);
@@ -64,9 +63,6 @@ static void s_get_token_type(Token *token, Lexer *lex)
 	token->type = UNKNOWN;
 }
 
-/*
- * todo: location, src file name output "token file_name:row:colm"
- */
 static Token *s_next(Lexer *lex)
 {
 	char c = 0;
@@ -123,18 +119,18 @@ static Token *s_next(Lexer *lex)
 	token->value = strdup(buf);
 	return token;
 }
-
-int is_quote(char c)
+ 
+static inline int is_quote(char c)
 {
 	return (c == '\"') || (c == '\'');
 }
 
-int is_punct(char c)
+static inline int is_punct(char c)
 {
 	return (ispunct(c) && !is_quote(c));
 }
 
-void  open_lexer(Lexer *lex, char *file)
+void open_lexer(Lexer *lex, char *file)
 {
 	lex->file_pointer = fopen(file, "r");
 
@@ -188,5 +184,6 @@ static void skip_spaces(Lexer *lex)
 		}
 	}
 
+	// NOTE (#1): Ungets the latest char because it is not a space so it will not be ignored.
 	ungetc(c, lex->file_pointer);
 }

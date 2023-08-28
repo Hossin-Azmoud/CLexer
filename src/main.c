@@ -19,4 +19,5 @@ int main()
 
 	// NOTE: (#2) close_lexer is a function that closes the file and frees resources.
 	close_lexer(lx);
+	return 0;
 }
