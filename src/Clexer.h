@@ -29,15 +29,11 @@ typedef struct token {
 	size_t    row, col;
 } Token;
 
-typedef struct lexer {
-	FILE   *file_pointer;
-	char   *file_name;
-	size_t col, row;
-} Lexer;
+typedef struct lexer LEXER;
 
 char  *get_type_name(TokenType t);
-Token *next(Lexer *lex);
-void  open_lexer(Lexer *lex, char *file);
-void  close_lexer(Lexer *lex);
+Token *next(LEXER *lex);
+LEXER *open_lexer(char *file);
+void  close_lexer(LEXER *lex);
 
 #endif // CLEXER_H
