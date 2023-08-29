@@ -33,7 +33,7 @@ int main()
     }
 
     // (#3): frees the lexer and closes the file.
-    close_lexer();
+    close_lexer(lx);
 }
 ```
 
