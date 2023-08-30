@@ -24,17 +24,18 @@ Token *next(LEXER *lex)
 
 static void s_get_token_type(Token *token, LEXER *lex)
 {
-	char first_char = *(token->value), last_char = token->value[strlen(token->value) - 1];
+	size_t length = strlen(token->value);
+	char   first_char = *(token->value), last_char = token->value[length - 1];
 
 	if (is_punct(first_char)) {
 		token->type = SYM;
 		return;
 	}
 
-	if (IS_QUOTE(first_char)) {
+	if (IS_QUOTE(first_char) || IS_QUOTE(last_char)) {
 		// TODO (#1): Handle singular quotes.
 		// TODO (#2): Handle escape sequences.
-		if (IS_QUOTE(last_char) && (first_char == last_char)) {
+		if (IS_QUOTE(last_char) && (first_char == last_char) && length > 1) {
 			token->type = STR_LIT;
 			return;
 		}
@@ -43,6 +44,9 @@ static void s_get_token_type(Token *token, LEXER *lex)
 			s_warning("Invalid", token, lex->file_name);
 		else
 			s_warning("Unterminated", token, lex->file_name);
+
+		token->type = UNKNOWN;
+		return;
 	}
 
 	// check the whole thing
@@ -55,8 +59,6 @@ static void s_get_token_type(Token *token, LEXER *lex)
 		token->type = ID;
 		return;
 	}
-
-	token->type = UNKNOWN;
 }
 
 static Token *s_next(LEXER *lex)
