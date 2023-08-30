@@ -1,5 +1,5 @@
 CC=gcc
-INCLUDE=
+INCLUDE=-I../include
 CFLAGS=-Wall -pedantic -Werror -g -ggdb -Wextra -std=c11
 
 all: main

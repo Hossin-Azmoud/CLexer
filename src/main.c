@@ -1,4 +1,4 @@
-#include "Clexer.h"
+#include <lexer.h>
 
 void run(char *file);
 int main(int argc, char **argv)
@@ -22,7 +22,6 @@ void run(char *file)
 	{
 		Token *tok;
 		while ((tok = next(lx))) {
-
 			printf("%7s -> %5s -> <(%ld, %ld)>\n",
 				tok->value,
 				get_type_name(tok->type),

@@ -1,4 +1,4 @@
-#include "Clexer.h"
+#include <lexer.h>
 static void skip_spaces(LEXER *lex);
 
 // NOTE (#1): lexer private structure.
@@ -28,7 +28,7 @@ LEXER *open_lexer(char *file)
 	return lex;
 }
 
-void  close_lexer(LEXER *lex)
+void close_lexer(LEXER *lex)
 {
 	fclose(lex->file_pointer);
 	free(lex->file_name);
@@ -38,7 +38,6 @@ void  close_lexer(LEXER *lex)
 static void skip_spaces(LEXER *lex)
 {
 	char c = 0;
-
 	while (isspace((c = fgetc(lex->file_pointer)))) {
 		switch (c) {
 			case NL: {
@@ -53,11 +52,6 @@ static void skip_spaces(LEXER *lex)
 
 	// NOTE (#4): Ungets the latest char because it is not a space so it will not be ignored.
 	ungetc(c, lex->file_pointer);
-}
-
-int is_punct(char c)
-{
-	return (ispunct(c) && !IS_QUOTE(c));
 }
 
 int skip_comments(LEXER *lex)
@@ -81,19 +75,3 @@ int skip_comments(LEXER *lex)
 	ungetc(c, lex->file_pointer);
 	return 0;
 }
-
-char *get_type_name(TokenType t)
-{
-	// NOTE (#6): Made it local static so other functions can not access it but it is indeed initialized only once and has 
-	// the life time of the whole program so we don't allocate and reallocate each time we call this function.
-	static char *Type_as_cstr[TOKEN_TYPE_AMOUNT] = {
-		"STR_LIT",
-		"INT",
-		"ID",
-		"SYM",
-		"UNKNOWN"
-	};
-
-	return Type_as_cstr[t];
-}
-

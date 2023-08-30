@@ -1,4 +1,4 @@
-#include "Clexer.h"
+#include <lexer.h>
 
 // NOTE (#1): lexer private structure.
 typedef struct lexer {
@@ -13,8 +13,9 @@ static void  s_warning(char *error, Token *token, char *file);
 
 Token *next(LEXER *lex)
 {
-	Token *token;
-	if (!(token = s_next(lex)))
+	Token *token = s_next(lex);
+
+	if (!token)
 		return NULL;
 
 	s_get_token_type(token, lex);
@@ -32,6 +33,7 @@ static void s_get_token_type(Token *token, LEXER *lex)
 
 	if (IS_QUOTE(first_char)) {
 		// TODO (#1): Handle singular quotes.
+		// TODO (#2): Handle escape sequences.
 		if (IS_QUOTE(last_char) && (first_char == last_char)) {
 			token->type = STR_LIT;
 			return;
@@ -92,6 +94,10 @@ static Token *s_next(LEXER *lex)
 				buf[it++] = c;
 				lex->col++;
 				while ((c = getc(lex->file_pointer)) != EOF && !IS_QUOTE(c) && c != NL) {
+					if (c == '\\') {
+						
+					}
+
 					lex->col++;
 					buf[it++] = c;
 				}
@@ -106,6 +112,7 @@ static Token *s_next(LEXER *lex)
 			} break;
 			default: {
 				if (is_punct(c)) {
+
 					if (it > 0) {
 						ungetc(c, lex->file_pointer);
 						lex->col--;

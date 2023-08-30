@@ -1,4 +1,3 @@
-/ Comment!
 void say_hello() {
-    printf("Hello!");
+    printf("Hello!\"\n");
 }
