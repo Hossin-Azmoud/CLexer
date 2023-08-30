@@ -9,6 +9,10 @@ char *get_type_name(TokenType t)
 		"INT",
 		"ID",
 		"SYM",
+		"PLUS",
+		"MINUS",
+		"MUL",
+		"DIV",
 		"UNKNOWN"
 	};
 

@@ -1,4 +1,10 @@
-// TODO (#1): This supposed to be a lexer error.
 s"
-// TODO (#2): This supposed to be a lexer error.
 "
+0b111
+0x1293
+123
+int
++
+-
+*
+/

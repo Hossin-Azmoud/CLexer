@@ -28,7 +28,23 @@ static void s_get_token_type(Token *token, LEXER *lex)
 	char   first_char = *(token->value), last_char = token->value[length - 1];
 
 	if (is_punct(first_char)) {
-		token->type = SYM;
+		switch (first_char) {
+			case PLUS_C : {
+				token->type = PLUS;
+			} break;
+			case MINUS_C: {
+				token->type = MINUS;
+			} break;
+			case MUL_C  : {
+				token->type = MUL;
+			} break;
+			case DIV_C: {
+				token->type = DIV;
+			} break;
+			default:
+				token->type = SYM;
+		}
+
 		return;
 	}
 
