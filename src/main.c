@@ -4,7 +4,7 @@ void run(char *file);
 int main(int argc, char **argv)
 {
 	if (argc > 1) {
-		run(argv[1]);
+		read_source(argv[1]);
 		return 0;
 	}
 

@@ -1,11 +1,5 @@
 #include <lexer.h>
 
-// NOTE (#1): lexer private structure.
-typedef struct lexer {
-	FILE   *file_pointer;
-	char   *file_name;
-	size_t col, row;
-} LEXER;
 
 static void s_get_token_type(Token *token, LEXER *lex);
 static Token *s_next(LEXER *lex);

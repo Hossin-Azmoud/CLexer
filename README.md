@@ -38,4 +38,5 @@ int main()
 ```
 
 # NOTE
+- This lexer reads bytes from the file directly so be careful not to delete the file before the program finishes
 - It is not finished yet..
