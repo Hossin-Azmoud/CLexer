@@ -1,10 +1,2 @@
-s"
-"
-0b111
-0x1293
-123
-int
-+
--
-*
-/
+def main(name: Hello ) -> Something:
+	return (Something + "Sup")
