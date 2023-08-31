@@ -5,6 +5,11 @@ int is_punct(char c)
 	return (ispunct(c) && !IS_QUOTE(c));
 }
 
+void free_raw_token(void *token)
+{
+	token_free((Token *) token);
+}
+
 char *get_type_name(TokenType t)
 {
 	// NOTE (#6): Made it local static so other functions can not access it but it is indeed initialized only once and has 

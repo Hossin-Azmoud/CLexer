@@ -1,4 +1,4 @@
-#include <lexer.h>
+#include <Lexer.h>
 static void skip_spaces(LEXER *lex);
 
 LEXER *open_lexer(char *file)

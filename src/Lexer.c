@@ -1,4 +1,4 @@
-#include <lexer.h>
+#include <Lexer.h>
 
 static void s_get_token_type(Token *token, LEXER *lex);
 static Token *s_next(LEXER *lex);
