@@ -1,13 +1,6 @@
 #include <lexer.h>
 static void skip_spaces(LEXER *lex);
 
-// NOTE (#1): lexer private structure.
-typedef struct lexer {
-	FILE   *file_pointer;
-	char   *file_name;
-	size_t col, row;
-} LEXER;
-
 LEXER *open_lexer(char *file)
 {
 	LEXER *lex = malloc(sizeof(LEXER));

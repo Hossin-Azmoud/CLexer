@@ -1,2 +1,5 @@
-def main(name: Hello ) -> Something:
-	return (Something + "Sup")
+// Strating point of the program.
+funn main :: () {
+	write("Hello, world!");
+	return 0;
+}

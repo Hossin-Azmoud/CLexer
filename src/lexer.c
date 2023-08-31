@@ -1,6 +1,5 @@
 #include <lexer.h>
 
-
 static void s_get_token_type(Token *token, LEXER *lex);
 static Token *s_next(LEXER *lex);
 static void  s_warning(char *error, Token *token, char *file);
@@ -22,7 +21,26 @@ static void s_get_token_type(Token *token, LEXER *lex)
 	char   first_char = *(token->value), last_char = token->value[length - 1];
 
 	if (is_punct(first_char)) {
-		switch (first_char) {
+
+		switch (first_char) {		
+			case O_PAREN_C  : {
+				token->type = O_PAREN;
+			} break;
+			case C_PAREN_C  : {
+				token->type = C_PAREN;
+			} break;
+			case O_BRACKET_C: {
+				token->type = O_BRACKET;
+			} break;
+			case C_BRACKET_C: {
+				token->type = C_BRACKET;
+			} break;
+			case O_CURLY_C  : {
+				token->type = O_CURLY;
+			} break;
+			case C_CURLY_C  : {
+				token->type = C_CURLY;
+			} break;
 			case PLUS_C : {
 				token->type = PLUS;
 			} break;
@@ -106,10 +124,6 @@ static Token *s_next(LEXER *lex)
 				buf[it++] = c;
 				lex->col++;
 				while ((c = getc(lex->file_pointer)) != EOF && !IS_QUOTE(c) && c != NL) {
-					if (c == '\\') {
-						
-					}
-
 					lex->col++;
 					buf[it++] = c;
 				}
