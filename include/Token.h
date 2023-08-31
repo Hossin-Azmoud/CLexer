@@ -65,5 +65,6 @@ int is_punct(char c);
 char *get_type_name(TokenType t);
 void migrate_token(Token *token, TokenType type);
 void token_free(Token *token);
+void free_raw_token(void *token);
 
 #endif // TOKEN_H

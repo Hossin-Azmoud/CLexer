@@ -5,7 +5,7 @@ CFLAGS=-Wall -pedantic -Werror -g -ggdb -Wextra -std=c11
 all: main
 
 main: *.c
-	$(CC) $(CFLAGS) $(INCLUDE) -o Clexer $^
+	$(CC) $(CFLAGS) $(INCLUDE) -o main $^
 run:
 	./Clexer
 clean:

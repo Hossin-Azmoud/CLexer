@@ -1,6 +1,6 @@
 #ifndef EVAL_H
 #define EVAL_H
-#include <lexer.h>
+#include <Lexer.h>
 
 Token *read_source(char *src);
 
