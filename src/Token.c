@@ -47,9 +47,23 @@ void migrate_token(Token *token, TokenType type)
 void token_free(Token *token)
 {
 	if (token) {
-		if (token->value)
+		if (token->value != NULL) {
 			free(token->value);
+		}
 		free(token);
 	}
 }
+Token *tokendup(Token *token)
+{
+	Token *new = malloc(sizeof(Token));
 
+	if (new == NULL) {
+		fprintf(stderr, "BUY NEW RAM!!!\n");
+		exit(1);
+	}
+
+	new->value = strdup(token->value);
+	new->type  = token->type;
+
+	return new;
+}

@@ -3,7 +3,7 @@
 void free_node(Node *node)
 {
 	if (node) {
-		free_raw_token(node->data);
+		token_free(node->data);
 		free(node);
 	}
 }

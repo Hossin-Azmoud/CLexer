@@ -5,16 +5,20 @@ int run(int argc, char **argv);
 
 int main()
 {
-	Token *tok = malloc(sizeof(Token));
-
 	// ({.value = "Hello\0", .type=STR_LIT})
-	tok->type  = STR_LIT;
-	tok->value = strdup("Hello");
-
+	int sz = 10;
 	Stack *s = stack_new();
+	stack_dump(s);
+	
+	for (; sz >= 0; sz--)
+		stack_push(s,  &((Token) {
+			.value = "...", 
+			.type = STR_LIT
+		}));
 
-	stack_push(s, (void *) tok);
-	free_stack(s, free_raw_token);
+	stack_dump(s);
+	free_stack(s);
+	return 0;
 }
 
 int run(int argc, char **argv)

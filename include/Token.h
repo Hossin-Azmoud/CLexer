@@ -66,5 +66,6 @@ char *get_type_name(TokenType t);
 void migrate_token(Token *token, TokenType type);
 void token_free(Token *token);
 void free_raw_token(void *token);
+Token *tokendup(Token *token);
 
 #endif // TOKEN_H

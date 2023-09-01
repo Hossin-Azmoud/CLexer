@@ -1,5 +1,11 @@
 #include <Structures/Stack.h>
 
+// NOTE (#1): Private structure.
+typedef struct stack_s {
+	Node   *head, *tail;
+	size_t count;
+} Stack;
+
 Stack *stack_new()
 {
 	Stack *stack = malloc(sizeof(Stack));
@@ -10,43 +16,47 @@ Stack *stack_new()
 
 	stack->tail     = NULL;
 	stack->head     = NULL;
-	stack->tail_sec = NULL;
 	stack->count    = 0;
 	return stack;
 }
 
-void *stack_pop(Stack *stack)
+Token *stack_pop(Stack *stack)
 {
-	Node *cache = NULL;
-	void *data  = NULL;
+	Node  *temp = NULL;
+	Token *data = NULL;
 
 	if (stack->head == NULL) {
 		return NULL;
 	}
 
-	data  = malloc(sizeof(*stack->head->data));
+	data  = malloc(sizeof(Token));
 
 	if (stack->count == 1) {
-		*data = *(stack->head->data);
-		free_node(stack->head);
+		data->type  = stack->tail->data->type;
+		data->value = strdup(stack->tail->data->value);
+		free_node(stack->tail);
 		stack->head = NULL;
 		stack->tail = NULL;
+		stack->count--;
 		return data;
 	}
 
 	if (stack->count > 1) {
-		*data = *(stack->tail->data);
-		cache = stack->tail->prev;
+		data->type  = stack->tail->data->type;
+		data->value = strdup(stack->tail->data->value);
+		temp        = stack->tail->prev;
 		free_node(stack->tail);
-		stack->tail = cache;
+		stack->tail = temp;
 		stack->tail->next = NULL;
+		stack->count--;
 		return data;
 	}
 
+	// If it is an empty stack..
 	return NULL;
 }
 
-int stack_push(Stack *stack, void *data)
+int stack_push(Stack *stack, Token *data)
 {
 	Node *node = malloc(sizeof(Node));
 	
@@ -55,7 +65,7 @@ int stack_push(Stack *stack, void *data)
 		return 0;
 	}
 
-	node->data = data;
+	node->data =tokendup(data);
 	node->next = NULL;
 	node->prev = NULL;
 
@@ -67,7 +77,7 @@ int stack_push(Stack *stack, void *data)
 	}
 
 	node->prev        = stack->tail;
-	stack->tail->Next = node;
+	stack->tail->next = node;
 	stack->tail       = node;
 	stack->count++;
 	return 1;
@@ -75,13 +85,13 @@ int stack_push(Stack *stack, void *data)
 
 void free_stack(Stack *stack)
 {
-	Node *curr, *tmp;
+	Node *curr = NULL, *tmp = NULL;
 
 	if (stack) {
 		curr = stack->head;
 
 		while (curr != NULL) {
-			tmp = curr->Next;
+			tmp = curr->next;
 			free_node(curr);
 			curr = tmp;
 		}
@@ -90,3 +100,22 @@ void free_stack(Stack *stack)
 		stack = NULL;
 	}
 }
+
+void stack_dump(Stack *stack)
+{
+	Node   *curr = stack->head;
+	size_t size = stack->count;
+
+	while (curr) {
+		printf("(%s)", (curr->data->value));
+		size--;
+
+		if (size != 0)
+			printf(" -> ");
+
+		curr = curr->next;
+	}
+
+	putchar('\n');
+}
+
