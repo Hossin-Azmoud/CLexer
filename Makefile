@@ -7,7 +7,9 @@ all: main
 
 main: ./src/*.c
 	$(CC) $(CFLAGS) $(INCLUDE) -o $(OUTPUTDIR)/main $^
+
 run:
 	$(OUTPUTDIR)/main
+
 clean:
 	rm $(OUTPUTDIR)/main

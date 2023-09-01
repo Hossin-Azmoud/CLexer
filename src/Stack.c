@@ -2,21 +2,23 @@
 
 // NOTE (#1): Private structure.
 typedef struct stack_s {
-	Node   *head, *tail;
-	size_t count;
+	Node   *__base, *__top;
+	size_t  count;
 } Stack;
 
 Stack *stack_new()
 {
 	Stack *stack = malloc(sizeof(Stack));
+
 	if (stack == NULL) {
 		fprintf(stderr, "Could not allocate the stack...");
 		return NULL;
 	}
 
-	stack->tail     = NULL;
-	stack->head     = NULL;
+	stack->__top    = NULL;
+	stack->__base   = NULL;
 	stack->count    = 0;
+
 	return stack;
 }
 
@@ -25,29 +27,28 @@ Token *stack_pop(Stack *stack)
 	Node  *temp = NULL;
 	Token *data = NULL;
 
-	if (stack->head == NULL) {
+	if (stack->__base == NULL) {
 		return NULL;
 	}
 
 	data  = malloc(sizeof(Token));
-
 	if (stack->count == 1) {
-		data->type  = stack->tail->data->type;
-		data->value = strdup(stack->tail->data->value);
-		free_node(stack->tail);
-		stack->head = NULL;
-		stack->tail = NULL;
+		data->type  = stack->__top->data->type;
+		data->value = strdup(stack->__top->data->value);
+		free_node(stack->__top);
+		stack->__base = NULL;
+		stack->__top = NULL;
 		stack->count--;
 		return data;
 	}
 
 	if (stack->count > 1) {
-		data->type  = stack->tail->data->type;
-		data->value = strdup(stack->tail->data->value);
-		temp        = stack->tail->prev;
-		free_node(stack->tail);
-		stack->tail = temp;
-		stack->tail->next = NULL;
+		data->type  = stack->__top->data->type;
+		data->value = strdup(stack->__top->data->value);
+		temp        = stack->__top->prev;
+		free_node(stack->__top);
+		stack->__top = temp;
+		stack->__top->next = NULL;
 		stack->count--;
 		return data;
 	}
@@ -69,16 +70,16 @@ int stack_push(Stack *stack, Token *data)
 	node->next = NULL;
 	node->prev = NULL;
 
-	if (!(stack->tail) && !(stack->head)) {
-		stack->head = node;
-		stack->tail = node;
+	if (!(stack->__top) && !(stack->__base)) {
+		stack->__base = node;
+		stack->__top = node;
 		stack->count++;
 		return 1;
 	}
 
-	node->prev        = stack->tail;
-	stack->tail->next = node;
-	stack->tail       = node;
+	node->prev        = stack->__top;
+	stack->__top->next = node;
+	stack->__top       = node;
 	stack->count++;
 	return 1;
 }
@@ -88,7 +89,7 @@ void free_stack(Stack *stack)
 	Node *curr = NULL, *tmp = NULL;
 
 	if (stack) {
-		curr = stack->head;
+		curr = stack->__base;
 
 		while (curr != NULL) {
 			tmp = curr->next;
@@ -103,7 +104,7 @@ void free_stack(Stack *stack)
 
 void stack_dump(Stack *stack)
 {
-	Node   *curr = stack->head;
+	Node   *curr = stack->__base;
 	size_t size = stack->count;
 
 	while (curr) {

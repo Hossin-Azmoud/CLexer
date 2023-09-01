@@ -1,6 +1,6 @@
 #include <Lexer.h>
 
-static void s_get_token_type(Token *token, LEXER *lex);
+static void  s_get_token_type(Token *token, LEXER *lex);
 static Token *s_next(LEXER *lex);
 static void  s_warning(char *error, Token *token, char *file);
 
@@ -21,12 +21,11 @@ static void s_get_token_type(Token *token, LEXER *lex)
 	char   first_char = *(token->value), last_char = token->value[length - 1];
 
 	if (is_punct(first_char)) {
-
 		switch (first_char) {		
-			case O_PAREN_C  : {
+			case O_PAREN_C: {
 				token->type = O_PAREN;
 			} break;
-			case C_PAREN_C  : {
+			case C_PAREN_C: {
 				token->type = C_PAREN;
 			} break;
 			case O_BRACKET_C: {
@@ -35,13 +34,13 @@ static void s_get_token_type(Token *token, LEXER *lex)
 			case C_BRACKET_C: {
 				token->type = C_BRACKET;
 			} break;
-			case O_CURLY_C  : {
+			case O_CURLY_C: {
 				token->type = O_CURLY;
 			} break;
-			case C_CURLY_C  : {
+			case C_CURLY_C: {
 				token->type = C_CURLY;
 			} break;
-			case PLUS_C : {
+			case PLUS_C: {
 				token->type = PLUS;
 			} break;
 			case MINUS_C: {
@@ -91,10 +90,15 @@ static void s_get_token_type(Token *token, LEXER *lex)
 
 static Token *s_next(LEXER *lex)
 {
-	char c = 0;
+	char c   = 0;
 	short it = 0;
 	Token *token = malloc(sizeof(Token));
-	char buf[CAP] = {0};
+	char buf[CAP] = { 0 };
+	
+	if (lex == NULL) {
+		fprintf(stderr, "COMPILER_ERROR: The lexer was not initialized properly (Null)\n");
+		exit(1);
+	}
 
 	{
 		// NOTE (#2): Define the location of the current token.
@@ -123,6 +127,7 @@ static Token *s_next(LEXER *lex)
 			case DQ: {
 				buf[it++] = c;
 				lex->col++;
+				
 				while ((c = getc(lex->file_pointer)) != EOF && !IS_QUOTE(c) && c != NL) {
 					lex->col++;
 					buf[it++] = c;
@@ -133,7 +138,6 @@ static Token *s_next(LEXER *lex)
 					lex->col++;
 					continue;
 				}
-
 				ungetc(c, lex->file_pointer);
 			} break;
 			default: {
@@ -171,6 +175,7 @@ static Token *s_next(LEXER *lex)
 	token->value = strdup(buf);
 	return token;
 }
+
 // TODO (#1): this function does unnecessiry move of memory so I think it is useless??
 static void s_warning(char *error, Token *token, char *file)
 {
@@ -183,4 +188,3 @@ static void s_warning(char *error, Token *token, char *file)
 		 token->value
 	);
 }
-

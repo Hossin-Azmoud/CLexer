@@ -4,17 +4,14 @@
 int run(int argc, char **argv);
 int main(int argc, char **argv)
 {
-	run(
-		argc,
-		argv
-	);
-
+	run(argc, argv);
 	return 0;
 }
 
 int run(int argc, char **argv)
 {
 	char *file = NULL;
+
 	if (argc <= 1) {
 		fprintf(stderr, "Expected a file name to lex. but found nothing.\n");
 		fprintf(stderr, "USAGE: %s <file_name>\n", argv[0]);
