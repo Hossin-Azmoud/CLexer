@@ -1,3 +1,4 @@
+
 #include <Lexer.h>
 #include <Structures/Stack.h>
 
@@ -6,17 +7,25 @@ int run(int argc, char **argv);
 int main()
 {
 	// ({.value = "Hello\0", .type=STR_LIT})
+	Token *t      = NULL;
+	char buff[10] = {0};
 	int sz = 10;
 	Stack *s = stack_new();
-	stack_dump(s);
-	
-	for (; sz >= 0; sz--)
-		stack_push(s,  &((Token) {
-			.value = "...", 
-			.type = STR_LIT
-		}));
 
-	stack_dump(s);
+	for (; sz >= 0; sz--) {
+		stack_dump(s);
+		sprintf(buff, "%d", sz * 10); 
+		stack_push(s,  &((Token) {
+			.value = buff,
+			.type  = STR_LIT
+		}));
+	}
+	
+	while ((t = stack_pop(s))) {
+		stack_dump(s);
+		token_free(t);
+	}
+
 	free_stack(s);
 	return 0;
 }
