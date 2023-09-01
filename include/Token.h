@@ -1,6 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 #define _GNU_SOURCE
+#define _OPEN_SYS_ITOA_EXT
 
 #include <stdio.h>
 #include <errno.h>
