@@ -1,14 +1,7 @@
-#include <Lexer.h>
-#include <Structures/Stack.h>
+#include <lexer/Lexer.h>
+#include <structures/Stack.h>
 
-int run(int argc, char **argv);
 int main(int argc, char **argv)
-{
-	run(argc, argv);
-	return 0;
-}
-
-int run(int argc, char **argv)
 {
 	char *file = NULL;
 
@@ -38,5 +31,7 @@ int run(int argc, char **argv)
 
 	// NOTE: (#2) close_lexer is a function that closes the file and frees resources.
 	close_lexer(lx);
+	return 0;
+
 	return 0;
 }

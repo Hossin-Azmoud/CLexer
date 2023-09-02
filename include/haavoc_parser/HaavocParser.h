@@ -1,0 +1,4 @@
+#ifndef HAAVOC_PARSER_H
+#define HAAVOC_PARSER_H
+
+#endif //HAAVOC_PARSER_H

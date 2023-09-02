@@ -1,4 +1,4 @@
-#include <Structures/Node.h>
+#include <structures/Node.h>
 
 void free_node(Node *node)
 {

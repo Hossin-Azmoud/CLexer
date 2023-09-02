@@ -1,4 +1,4 @@
-#include <Structures/Stack.h>
+#include <structures/Stack.h>
 
 // NOTE (#1): Private structure.
 typedef struct stack_s {

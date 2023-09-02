@@ -1,6 +1,6 @@
 #ifndef NODE_H
 #define NODE_H
-#include <Token.h>
+#include <lexer/Token.h>
 typedef struct Node Node;
 
 typedef struct Node {

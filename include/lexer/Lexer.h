@@ -1,6 +1,6 @@
 #ifndef CLEXER_H
 #define CLEXER_H
-#include <Token.h>
+#include <lexer/Token.h>
 // NOTE (#1): lexer private structure.
 typedef struct lexer {
 	FILE   *file_pointer;

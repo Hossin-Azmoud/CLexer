@@ -1,6 +1,6 @@
 #ifndef STACK_H
 #define STACK_H
-#include <Structures/Node.h>
+#include <structures/Node.h>
 
 #define IS_EMPTY(s) (s->count == 0)
 typedef struct stack_s Stack;

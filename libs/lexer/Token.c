@@ -1,4 +1,4 @@
-#include "Token.h"
+#include <lexer/Token.h>
 
 int is_punct(char c)
 {
